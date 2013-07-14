@@ -61,6 +61,6 @@
 	#define KR_ASSERT(exp)
 #endif
 
-#define KR_INDEX(x, y, w) (x + (y * w))
+#define KR_INDEX(x, y, w) ((x + (y * w)))
 
 #endif

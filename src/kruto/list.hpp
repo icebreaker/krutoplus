@@ -14,6 +14,8 @@ public:
 
 	int add(const T &pItem);
 
+	void reserve(const int pSize);
+
 	void clear(void);
 	void dispose(void);
 
@@ -57,6 +59,12 @@ int List<T, GRANULARITY>::add(const T &pItem)
 	ensureSize(mSize + 1);
 	mData[mSize] = pItem;
 	return mSize++;
+}
+
+template< typename T, const int GRANULARITY > inline
+void List<T, GRANULARITY>::reserve(const int pSize)
+{
+	ensureSize(pSize+1);
 }
 
 template< typename T, const int GRANULARITY > inline
