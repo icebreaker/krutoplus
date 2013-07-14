@@ -90,6 +90,20 @@ void ImageBatch::get(const unsigned int pIndex, float *pX, float *pY) const
 	*pY = v->mPos[1];
 }
 
+void ImageBatch::get(const unsigned int pIndex, float *pX, float *pY, float *pA) const
+{
+	Vertex *v = mVertices + (pIndex * 4);
+	*pX = v->mPos[0];
+	*pY = v->mPos[1];
+	*pA = v->mColor[3];
+}
+
+float ImageBatch::getAlpha(const unsigned int pIndex) const
+{
+	Vertex *v = mVertices + (pIndex * 4);
+	return v->mColor[3];
+}
+
 void ImageBatch::set(const unsigned int pIndex, const float pX, const float pY, const float pW, const float pH)
 {
 	Vertex *v = mVertices + (pIndex * 4);

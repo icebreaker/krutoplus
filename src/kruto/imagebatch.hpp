@@ -29,6 +29,9 @@ public:
 	Vertex *ptr(void) const;
 
 	void get(const unsigned int pIndex, float *pX, float *pY) const;
+	void get(const unsigned int pIndex, float *pX, float *pY, float *pA) const;
+
+	float getAlpha(const unsigned int pIndex) const;
 
 	void set(const unsigned int pIndex, const float pX, const float pY, const float pW, const float pH);
 	void set(const unsigned int pIndex, const float pX, const float pY);
