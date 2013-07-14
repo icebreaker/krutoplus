@@ -1,0 +1,4 @@
+-DKR_DEBUG
+-Isrc
+-Isrc/kruto
+-Idemos

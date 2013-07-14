@@ -1,0 +1,10 @@
+build:
+	make
+
+clean:
+	make clean
+
+execute:
+	cd demos/basic; ../../build/basic
+
+.PHONY: build clean execute

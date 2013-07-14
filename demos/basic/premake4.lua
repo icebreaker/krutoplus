@@ -1,0 +1,1 @@
+kruto "basic"
