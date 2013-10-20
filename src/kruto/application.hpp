@@ -19,7 +19,14 @@ namespace kruto {
 class Application
 {
 public:
-	Application(const int pArgc, char **pArgv);
+	Application(const int pArgc, 
+				char **pArgv, 
+				const char *pTitle=KR_VERSION_NAME, 
+				const int pWidth=KR_CANVAS_WIDTH,
+				const int pHeight=KR_CANVAS_HEIGHT,
+				const bool pFullScreen=KR_CANVAS_FULLSCREEN,
+				const bool pAudio=true
+				);
 	virtual ~Application(void);
 
 	virtual bool initialize(void);
@@ -53,6 +60,7 @@ public:
 	void setFullScreen(const bool pFullScreen);
 
 	unsigned int ticks(void) const;
+	int fps(void) const;
 
 	bool isKeyDown(const Keys::Key pKey) const;
 	bool isMouseDown(const MouseButtons::Button pButton) const;
@@ -65,14 +73,17 @@ public:
 private:
 	int mArgc;
 	char **mArgv;
+	char mTitle[256];
 	int mWidth;
 	int mHeight;
 	bool mFullScreen;
+	bool mAudio;
 	bool mRunning;
 	bool mKeys[512];
 	bool mButtons[3];
 	int mMouseX;
 	int mMouseY;
+	int mFps;
 };
 
 }

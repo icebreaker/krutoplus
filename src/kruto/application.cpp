@@ -4,15 +4,24 @@
 
 namespace kruto {
 
-Application::Application(const int pArgc, char **pArgv) : 
+Application::Application(const int pArgc, 
+		char **pArgv,
+		const char *pTitle,
+		const int pWidth,
+		const int pHeight,
+		const bool pFullScreen,
+		const bool pAudio) :
 	mArgc(pArgc), 
 	mArgv(pArgv),
-	mWidth(KR_CANVAS_WIDTH),
-	mHeight(KR_CANVAS_HEIGHT),
-	mFullScreen(KR_CANVAS_FULLSCREEN),
+	mWidth(pWidth),
+	mHeight(pHeight),
+	mFullScreen(pFullScreen),
+	mAudio(pAudio),
 	mRunning(true)
 {
 	Console::log("[app] created");
+
+	setTitle(pTitle);
 
 	for(int i=0; i<512; i++)
 		mKeys[i] = false;
@@ -32,7 +41,14 @@ bool Application::initialize(void)
 {
 	Console::log("[app] initialized");
 
-	if(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) < 0)
+	Uint32 flags = SDL_INIT_VIDEO;
+
+#ifndef KR_NO_AUDIO
+	if(mAudio)
+		flags |= SDL_INIT_AUDIO;
+#endif
+
+	if(SDL_Init(flags) < 0)
 	{
 		Console::log("[app] Failed to initialize SDL: %s", SDL_GetError());
 		return false;
@@ -47,13 +63,13 @@ bool Application::initialize(void)
 	SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL);
 //	SDL_WM_GrabInput(SDL_GRAB_ON);
 
-	setTitle("Kruto+");
+	SDL_WM_SetCaption(mTitle, mTitle);
 
 	if(!Image::initialize())
 		return false;
 
 #ifndef KR_NO_AUDIO
-	if(!Audio::initialize())
+	if((SDL_getenv("KR_NO_AUDIO") == NULL && mAudio) && !Audio::initialize())
 		return false;
 #endif
 
@@ -63,7 +79,8 @@ bool Application::initialize(void)
 void Application::uninitialize(void)
 {
 #ifndef KR_NO_AUDIO
-	Audio::uninitialize();
+	if(SDL_getenv("KR_NO_AUDIO") == NULL && mAudio)
+		Audio::uninitialize();
 #endif
 
 	Image::uninitialize();
@@ -172,7 +189,11 @@ void Application::processEvents(void)
 
 int Application::exec(void)
 {
-	unsigned int last = ticks();
+	unsigned int now = 0;
+	unsigned int last = 0;
+	unsigned int dt = 0;
+	unsigned int frames = 0;
+	unsigned int framesLastTime = 0;
 
 	if(!initialize() || !Canvas::isInitialized())
 	{
@@ -180,15 +201,27 @@ int Application::exec(void)
 		return EXIT_FAILURE;
 	}
 
+	now = ticks();
+	last = now;
+	framesLastTime = last;
+
 	while(mRunning)
 	{
-		unsigned int now = ticks();
-		unsigned int dt = now - last;
-		last = now;
-
 		draw();
 		update(dt);
 		processEvents();
+
+		now = ticks();
+		dt = now - last;
+		last = now;
+
+		frames++;
+		if(now > framesLastTime + 1000)
+		{
+			mFps = frames;
+			framesLastTime = now;
+			frames = 0;
+		}
 	}
 
 	uninitialize();
@@ -197,29 +230,34 @@ int Application::exec(void)
 
 void Application::setTitle(const char *pTitle)
 {
-	SDL_WM_SetCaption(pTitle, pTitle);
+	if(pTitle != NULL)
+	{
+		strncpy(mTitle, pTitle, 255);
+		mTitle[255] = '\0';
+
+		if(Canvas::isInitialized())
+			SDL_WM_SetCaption(mTitle, mTitle);
+	}
 }
 
 const char *Application::title(void) const
 {
-	char *title;
-	SDL_WM_GetCaption(&title, NULL);
-	return title;
+	return mTitle;
 }
 
 int Application::argc(void) const
 {
-	return mArgc;	 
+	return mArgc;
 }
 
 char **Application::argv(void) const
 {
-	return mArgv;	 
+	return mArgv;
 }
 
 const char *Application::argv(const unsigned int pIndex)
 {
-	return mArgv[pIndex];	 
+	return mArgv[pIndex];
 }
 
 unsigned int Application::width(void) const
@@ -229,7 +267,7 @@ unsigned int Application::width(void) const
 
 unsigned int Application::height(void) const
 {
-	return mHeight;	 
+	return mHeight;
 }
 
 void Application::setSize(const int pWidth, const int pHeight)
@@ -260,6 +298,11 @@ unsigned int Application::ticks(void) const
 	return SDL_GetTicks();
 }
 
+int Application::fps(void) const
+{
+	return mFps;
+}
+
 bool Application::isKeyDown(const Keys::Key pKey) const
 {
 	return mKeys[pKey];
@@ -282,7 +325,7 @@ int Application::mouseY(void) const
 
 void Application::quit(void)
 {
-	mRunning = false;	 
+	mRunning = false;
 }
 
 }

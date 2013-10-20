@@ -6,19 +6,17 @@ class BasicApp : public Application
 {
 public:
 	BasicApp(const int pArgc, char **pArgv) : 
-		Application(pArgc, pArgv), 
+		Application(pArgc, pArgv, "Demos: Basic", 800, 600), 
 		mSoldierX(100 + Math::random(100)), 
 		mSoldierY(120 + Math::random(120))
 	{
-		setSize(800, 600);
+		// empty
 	}
 
 	virtual bool initialize(void)
 	{
 		if(!Application::initialize())
 			return false;
-
-		setTitle("Demos: Basic");
 
 		if(!mBackground.load("data/gfx/greenground1.png"))
 			return false;
@@ -32,7 +30,7 @@ public:
 		if(!mSoldier.load("data/gfx/malesoldiernormal.png"))
 			return false;
 
-#ifndef NO_AUDIO
+#ifndef KR_NO_AUDIO
 		if(!mMusic.load("data/sfx/calm_town.ogg"))
 			return false;
 
@@ -51,7 +49,7 @@ public:
 
 	virtual void uninitialize(void)
 	{
-#ifndef NO_AUDIO
+#ifndef KR_NO_AUDIO
 		mMusic.dispose();
 #endif
 
